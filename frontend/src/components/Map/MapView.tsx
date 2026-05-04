@@ -99,7 +99,7 @@ export default function MapView({ listings, onListingClick }: Props) {
           const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
           mapRef.current?.easeTo({ center: coords, zoom: zoom + 0.5, duration: 400 });
         });
-      } else if (feature.layer?.id === "unclustered-point") {
+      } else if (feature.layer?.id === "unclustered-point" || feature.layer?.id === "unclustered-point-hit") {
         const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
         const listing = featureToListing(feature.properties as Record<string, unknown>);
         setPopupInfo({ longitude: coords[0], latitude: coords[1], listing });
@@ -137,7 +137,7 @@ export default function MapView({ listings, onListingClick }: Props) {
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      interactiveLayerIds={["clusters", "unclustered-point"]}
+      interactiveLayerIds={["clusters", "unclustered-point", "unclustered-point-hit"]}
       style={{ width: "100%", height: "100%" }}
     >
       <NavigationControl position="bottom-right" />
@@ -208,12 +208,30 @@ export default function MapView({ listings, onListingClick }: Props) {
               "interpolate",
               ["linear"],
               ["zoom"],
-              10, 6,
-              14, 10,
+              10, 8,
+              14, 14,
             ],
             "circle-stroke-width": 2,
             "circle-stroke-color": "#ffffff",
             "circle-opacity": 0.9,
+          }}
+        />
+
+        {/* Transparent hit-area — larger click target over each dot */}
+        <Layer
+          id="unclustered-point-hit"
+          type="circle"
+          filter={["!", ["has", "point_count"]]}
+          paint={{
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              10, 18,
+              14, 24,
+            ],
+            "circle-opacity": 0,
+            "circle-stroke-width": 0,
           }}
         />
 
