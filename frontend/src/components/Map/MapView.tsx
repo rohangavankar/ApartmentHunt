@@ -82,7 +82,10 @@ export default function MapView({ listings, onListingClick }: Props) {
   const onClick = useCallback(
     (e: MapLayerMouseEvent) => {
       const features = e.features;
-      if (!features?.length) return;
+      if (!features?.length) {
+        setPopupInfo(null);
+        return;
+      }
       const feature = features[0];
 
       if (feature.layer?.id === "clusters") {
@@ -275,7 +278,8 @@ export default function MapView({ listings, onListingClick }: Props) {
           latitude={popupInfo.latitude}
           anchor="bottom"
           onClose={() => setPopupInfo(null)}
-          closeButton={false}
+          closeOnClick={false}
+          closeButton={true}
           maxWidth="280px"
         >
           <ListingPopup
