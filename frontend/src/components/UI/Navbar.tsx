@@ -38,7 +38,7 @@ export default function Navbar() {
       ))}
 
       <div className="ml-auto text-xs text-slate-400">
-        NYC + Jersey City · Summer 2025
+        NYC · Summer 2026
       </div>
     </nav>
   );
