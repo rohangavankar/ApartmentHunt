@@ -23,7 +23,7 @@ app.add_middleware(
 
 @app.middleware("http")
 async def verify_api_secret(request: Request, call_next):
-    if settings.API_SECRET and request.url.path != "/health":
+    if settings.API_SECRET and request.method != "OPTIONS" and request.url.path != "/health":
         if request.headers.get("X-API-Secret") != settings.API_SECRET:
             return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
     return await call_next(request)
