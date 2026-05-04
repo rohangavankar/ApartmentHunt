@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
@@ -6,12 +6,14 @@ from uuid import UUID
 from app.database import get_db
 from app.models.alert import Alert
 from app.schemas.alert import AlertCreate, AlertOut, AlertUpdate
+from app.limiter import limiter
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
 
 @router.post("", response_model=AlertOut, status_code=201)
-def create_alert(body: AlertCreate, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+def create_alert(request: Request, body: AlertCreate, db: Session = Depends(get_db)):
     alert = Alert(**body.model_dump())
     db.add(alert)
     db.commit()

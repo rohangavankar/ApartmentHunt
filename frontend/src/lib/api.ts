@@ -1,11 +1,16 @@
 import { Listing, Alert, AlertCreate, Neighborhood, NeighborhoodScore, Stats } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_SECRET = process.env.NEXT_PUBLIC_API_SECRET;
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(API_SECRET ? { "X-API-Secret": API_SECRET } : {}),
+      ...(options?.headers ?? {}),
+    },
   });
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText);
