@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     SENDGRID_FROM_EMAIL: str = "alerts@aparthunt.app"
 
     GOOGLE_MAPS_API_KEY: Optional[str] = None
+    SCRAPERAPI_KEY: Optional[str] = None
 
     CORS_ORIGIN: str = "http://localhost:3000"
     API_SECRET: Optional[str] = None  # shared secret frontend sends as X-API-Secret header

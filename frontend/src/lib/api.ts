@@ -4,10 +4,11 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const API_SECRET = process.env.NEXT_PUBLIC_API_SECRET;
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
+  const hasBody = !!options?.body;
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(hasBody ? { "Content-Type": "application/json" } : {}),
       ...(API_SECRET ? { "X-API-Secret": API_SECRET } : {}),
       ...(options?.headers ?? {}),
     },

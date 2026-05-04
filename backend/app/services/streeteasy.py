@@ -7,12 +7,15 @@ URL format: https://streeteasy.com/for-rent/nyc/status:open|price:min-max|area:c
 """
 
 import logging
+import os
 import random
 import re
 import time
 from typing import Optional
 
 import requests
+
+SCRAPERAPI_KEY = os.environ.get("SCRAPERAPI_KEY")
 
 logger = logging.getLogger(__name__)
 
@@ -232,7 +235,11 @@ def scrape_streeteasy(
             logger.info(f"[streeteasy] page {page}: {url}")
 
             try:
-                resp = session.get(url, timeout=20)
+                if SCRAPERAPI_KEY:
+                    api_url = f"http://api.scraperapi.com/?api_key={SCRAPERAPI_KEY}&url={requests.utils.quote(url, safe='')}"
+                    resp = session.get(api_url, timeout=60)
+                else:
+                    resp = session.get(url, timeout=20)
             except Exception as e:
                 logger.warning(f"[streeteasy] request failed: {e}")
                 break
