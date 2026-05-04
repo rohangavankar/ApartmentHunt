@@ -24,4 +24,6 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SCRAPERAPI_KEY: ${{ secrets.SCRAPERAPI_KEY }}
+          STREETEASY_COOKIES: ${{ secrets.STREETEASY_COOKIES }}
         run: python scripts/scrape_job.py

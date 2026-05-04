@@ -16,6 +16,7 @@ from typing import Optional
 import requests
 
 SCRAPERAPI_KEY = os.environ.get("SCRAPERAPI_KEY")
+STREETEASY_COOKIES = os.environ.get("STREETEASY_COOKIES")
 
 logger = logging.getLogger(__name__)
 
@@ -123,13 +124,16 @@ def _get_headers() -> dict:
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         )
-    return {
+    headers = {
         "user-agent": user_agent,
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "accept-language": "en-US,en;q=0.9",
         "referer": "https://streeteasy.com/",
         "cache-control": "no-cache",
     }
+    if STREETEASY_COOKIES:
+        headers["cookie"] = STREETEASY_COOKIES
+    return headers
 
 
 def _build_url(area_codes: list[int], min_price: int, max_price: int, min_beds: int, max_beds: int, page: int = 1) -> str:
