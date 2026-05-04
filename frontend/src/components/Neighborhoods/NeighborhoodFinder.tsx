@@ -1,9 +1,44 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { NeighborhoodScore } from "@/lib/types";
 import { MapPin, Train, Clock, DollarSign, Loader2, Building2, Star } from "lucide-react";
 import clsx from "clsx";
+
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+function useAddressAutocomplete() {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<{ place_name: string }[]>([]);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  const search = useCallback((val: string) => {
+    setQuery(val);
+    clearTimeout(timer.current);
+    if (!val || val.length < 3 || !MAPBOX_TOKEN) {
+      setSuggestions([]);
+      return;
+    }
+    timer.current = setTimeout(async () => {
+      try {
+        const encoded = encodeURIComponent(val);
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encoded}.json` +
+          `?access_token=${MAPBOX_TOKEN}&autocomplete=true&country=us` +
+          `&bbox=-74.26,40.48,-73.70,40.93&limit=5`
+        );
+        const data = await res.json();
+        setSuggestions(data.features ?? []);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 300);
+  }, []);
+
+  const clear = () => setSuggestions([]);
+
+  return { query, setQuery, suggestions, search, clear };
+}
 
 const VIBE_OPTIONS = [
   { label: "Trendy", value: "trendy" },
@@ -30,6 +65,7 @@ export default function NeighborhoodFinder() {
   const [results, setResults] = useState<NeighborhoodScore[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const addr = useAddressAutocomplete();
 
   const toggleVibe = (v: string) => {
     setForm((f) => ({
@@ -84,12 +120,35 @@ export default function NeighborhoodFinder() {
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-1">Work Address *</label>
             <div className="relative">
-              <MapPin size={15} className="absolute left-3 top-2.5 text-slate-400" />
+              <MapPin size={15} className="absolute left-3 top-2.5 text-slate-400 z-10" />
               <input
-                value={form.work_address} onChange={(e) => setForm({ ...form, work_address: e.target.value })}
+                value={addr.query}
+                onChange={(e) => {
+                  addr.search(e.target.value);
+                  setForm({ ...form, work_address: e.target.value });
+                }}
+                onBlur={() => setTimeout(addr.clear, 150)}
                 placeholder="e.g. 1 World Trade Center, New York, NY"
                 className="w-full pl-8 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              {addr.suggestions.length > 0 && (
+                <ul className="absolute z-50 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                  {addr.suggestions.map((s) => (
+                    <li
+                      key={s.place_name}
+                      onMouseDown={() => {
+                        addr.setQuery(s.place_name);
+                        setForm({ ...form, work_address: s.place_name });
+                        addr.clear();
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 cursor-pointer"
+                    >
+                      <MapPin size={13} className="text-slate-400 flex-shrink-0" />
+                      {s.place_name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
