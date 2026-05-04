@@ -7,7 +7,7 @@ import Map, {
   FullscreenControl,
   Popup,
   MapRef,
-  MapLayerMouseEvent,
+  MapMouseEvent,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { GeoJSON } from "geojson";
@@ -80,7 +80,7 @@ export default function MapView({ listings, onListingClick }: Props) {
 
   // Click handler for clusters and points
   const onClick = useCallback(
-    (e: MapLayerMouseEvent) => {
+    (e: MapMouseEvent) => {
       const features = e.features;
       if (!features?.length) {
         setPopupInfo(null);
