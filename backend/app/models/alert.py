@@ -11,7 +11,6 @@ class Alert(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)  # user-defined label, e.g. "1BR in Brooklyn"
     email = Column(String, nullable=False, index=True)
-    phone = Column(String, nullable=True)  # E.164 format for SMS
 
     # Filter criteria
     min_price = Column(Integer, nullable=True)

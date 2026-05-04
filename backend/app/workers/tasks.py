@@ -3,7 +3,7 @@ from app.workers.celery_app import celery
 from app.database import SessionLocal
 from app.models.alert import Alert, AlertHistory
 from app.models.listing import Listing
-from app.services.email_service import send_alert_email, send_sms_alert
+from app.services.email_service import send_alert_email
 
 
 @celery.task(name="app.workers.tasks.check_and_send_alerts")
@@ -67,16 +67,6 @@ def _process_alert(db, alert: Alert):
     status = "sent" if success else "failed"
     for l in new_listings:
         db.add(AlertHistory(alert_id=alert.id, listing_id=l.id, channel=channel, status=status))
-
-    # Send SMS if phone is set (first listing only)
-    if alert.phone and new_listings:
-        sms_ok = send_sms_alert(alert.phone, alert.name, listing_dicts[0])
-        db.add(AlertHistory(
-            alert_id=alert.id,
-            listing_id=new_listings[0].id,
-            channel="sms",
-            status="sent" if sms_ok else "failed",
-        ))
 
     alert.last_checked = datetime.utcnow()
 

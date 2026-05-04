@@ -15,8 +15,7 @@ interface Props {
 export default function AlertForm({ prefill, onCreated }: Props) {
   const [form, setForm] = useState<AlertCreate>({
     name: prefill?.name ?? "",
-    email: prefill?.email ?? "",
-    phone: prefill?.phone ?? "",
+    email: prefill?.email ?? "rohan.gavankar2004@gmail.com",
     min_price: prefill?.min_price,
     max_price: prefill?.max_price,
     min_bedrooms: prefill?.min_bedrooms,
@@ -59,7 +58,6 @@ export default function AlertForm({ prefill, onCreated }: Props) {
     try {
       const payload: AlertCreate = {
         ...form,
-        phone: form.phone || undefined,
         work_address: form.work_address || undefined,
       };
       await api.alerts.create(payload);
@@ -95,14 +93,6 @@ export default function AlertForm({ prefill, onCreated }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-500 mb-1">Phone (SMS, optional)</label>
-          <input
-            type="tel" value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            placeholder="+1 555 000 0000"
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-        <div>
           <label className="block text-xs font-semibold text-slate-500 mb-1">Max Commute (min)</label>
           <select
             value={form.max_commute_minutes ?? ""}
@@ -113,6 +103,7 @@ export default function AlertForm({ prefill, onCreated }: Props) {
             {[20, 30, 45, 60, 75].map((m) => <option key={m} value={m}>{m} min</option>)}
           </select>
         </div>
+        <div />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

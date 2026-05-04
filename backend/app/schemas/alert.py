@@ -7,7 +7,6 @@ from uuid import UUID
 class AlertCreate(BaseModel):
     name: str
     email: str
-    phone: Optional[str] = None
     min_price: Optional[int] = None
     max_price: Optional[int] = None
     min_bedrooms: Optional[float] = None
@@ -23,7 +22,6 @@ class AlertOut(BaseModel):
     id: UUID
     name: str
     email: str
-    phone: Optional[str]
     min_price: Optional[int]
     max_price: Optional[int]
     min_bedrooms: Optional[float]

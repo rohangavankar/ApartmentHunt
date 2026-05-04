@@ -53,21 +53,3 @@ def send_alert_email(to_email: str, alert_name: str, listings: List[Dict[str, An
         return False
 
 
-def send_sms_alert(to_phone: str, alert_name: str, listing: Dict[str, Any]) -> bool:
-    if not (settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN):
-        print(f"[sms] No Twilio creds — would send listing to {to_phone}")
-        return True
-
-    try:
-        from twilio.rest import Client
-        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-        beds = "Studio" if listing["bedrooms"] == 0 else f"{int(listing['bedrooms'])}BR"
-        body = (
-            f"ApartHunt ({alert_name}): {beds} in {listing['neighborhood']} "
-            f"for ${listing['price']:,}/mo — {listing.get('listing_url', 'See app')}"
-        )
-        client.messages.create(to=to_phone, from_=settings.TWILIO_FROM_PHONE, body=body)
-        return True
-    except Exception as e:
-        print(f"[sms] Failed: {e}")
-        return False

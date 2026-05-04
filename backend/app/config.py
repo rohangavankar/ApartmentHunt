@@ -11,10 +11,6 @@ class Settings(BaseSettings):
     SENDGRID_API_KEY: Optional[str] = None
     SENDGRID_FROM_EMAIL: str = "alerts@aparthunt.app"
 
-    TWILIO_ACCOUNT_SID: Optional[str] = None
-    TWILIO_AUTH_TOKEN: Optional[str] = None
-    TWILIO_FROM_PHONE: Optional[str] = None
-
     GOOGLE_MAPS_API_KEY: Optional[str] = None
 
     class Config:

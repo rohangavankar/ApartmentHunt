@@ -38,7 +38,6 @@ export interface Alert {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
   min_price: number | null;
   max_price: number | null;
   min_bedrooms: number | null;
@@ -56,7 +55,6 @@ export interface Alert {
 export interface AlertCreate {
   name: string;
   email: string;
-  phone?: string;
   min_price?: number;
   max_price?: number;
   min_bedrooms?: number;
