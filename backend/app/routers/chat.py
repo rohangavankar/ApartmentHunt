@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -6,6 +6,7 @@ from typing import List, Optional
 from app.database import get_db
 from app.models.listing import Listing
 from app.services.chat import chat_with_claude, build_listing_context
+from app.limiter import limiter
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -22,7 +23,8 @@ class ChatRequest(BaseModel):
 
 
 @router.post("")
-async def chat(body: ChatRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute;50/day")
+async def chat(request: Request, body: ChatRequest, db: Session = Depends(get_db)):
     # Pull relevant listings for context
     q = db.query(Listing).filter(Listing.is_active == True)
     if body.max_price:
