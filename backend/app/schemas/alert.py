@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_serializer
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 
@@ -36,6 +36,13 @@ class AlertOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_serializer("last_checked", "created_at")
+    def serialize_dt(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        # Append Z so JavaScript treats it as UTC and converts to local time
+        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class AlertUpdate(BaseModel):
