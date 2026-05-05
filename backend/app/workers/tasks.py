@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from app.workers.celery_app import celery
 from app.database import SessionLocal
@@ -5,12 +6,15 @@ from app.models.alert import Alert, AlertHistory
 from app.models.listing import Listing
 from app.services.email_service import send_alert_email
 
+logger = logging.getLogger(__name__)
+
 
 @celery.task(name="app.workers.tasks.check_and_send_alerts")
 def check_and_send_alerts():
     db = SessionLocal()
     try:
         alerts = db.query(Alert).filter(Alert.is_active == True).all()
+        logger.info(f"[alerts] checking {len(alerts)} alert(s)")
         for alert in alerts:
             _process_alert(db, alert)
         db.commit()
@@ -39,11 +43,14 @@ def _process_alert(db, alert: Alert):
         str(h.listing_id)
         for h in db.query(AlertHistory.listing_id).filter(AlertHistory.alert_id == alert.id).all()
     }
-    # If alert has a last_checked time, only look at newer listings
+    # Only look at listings newer than last check
     if alert.last_checked:
         q = q.filter(Listing.created_at > alert.last_checked)
 
-    new_listings = [l for l in q.all() if str(l.id) not in sent_ids]
+    all_matches = q.all()
+    new_listings = [l for l in all_matches if str(l.id) not in sent_ids]
+    logger.info(f"[alerts] '{alert.name}': {len(all_matches)} new since last check, {len(new_listings)} unsent")
+
     if not new_listings:
         alert.last_checked = datetime.utcnow()
         return
