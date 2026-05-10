@@ -30,3 +30,4 @@ celerybeat.pid
 # OS
 .DS_Store
 Thumbs.db
+SYSTEM_DESIGN.md
